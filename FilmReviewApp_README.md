@@ -1,5 +1,44 @@
 # BlazorApp – Aplikacja do oceny filmów 
 
+## Struktura projektu
+```
+BlazorApp1/
+├── Components/
+│   ├── Account/
+│   │   └── Pages/
+│   │       ├── Login.razor
+│   │       └── Register.razor
+│   ├── Layout/
+│   │   ├── MainLayout.razor
+│   │   └── NavMenu.razor
+│   ├── Pages/
+│   │   ├── Counter.razor
+│   │   ├── Home.razor
+│   │   ├── MoviePages/
+│   │   │   ├── Create.razor
+│   │   │   ├── Delete.razor
+│   │   │   ├── Details.razor
+│   │   │   ├── Edit.razor
+│   │   │   └── Index.razor
+│   │   └── Auth.razor
+│   ├── Routes.razor
+│   ├── App.razor
+│   ├── _Imports.razor
+│   └── Movie.cs
+├── Data/
+│   ├── Migrations/
+│   │   ├── 00000000000000_CreateIdentitySchema.cs
+│   │   ├── 20250428143533_Init.cs
+│   │   ├── 20250428152540_MovieMigration.cs
+│   │   ├── 20250428162227_AddImageUrlToMovie.cs
+│   │   ├── 20250429095648_NewFeaturesDB.cs
+│   │   └── ApplicationDbContextModelSnapshot.cs
+│   ├── ApplicationDbContext.cs
+│   └── ApplicationUser.cs
+├── Program.cs
+├── appsettings.json
+```
+
 ## Movie.cs – Model
 - `Id` – identyfikator (int)
 - `Title` – wymagane, max 100 znaków
@@ -31,7 +70,7 @@ Wszystkie widoki (Create, Details) wymagają uwierzytelnienia (`[Authorize]`).
 ### Nawigacja
 - Przycisk „Back to List" → `/movies`
 
-## 📄 Details.razor
+## Details.razor
 - **Routowanie**: `/movies/details?id={id}`
 - **Tytuł strony**: `Details`
 ### Dane filmu
