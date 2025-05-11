@@ -1,0 +1,118 @@
+﻿@page "/movies/details"
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp1.Components
+@using Microsoft.AspNetCore.Components.Forms
+@inject IDbContextFactory<BlazorApp1.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+<PageTitle>Details</PageTitle>
+<h1>Details</h1>
+<div>
+    <h2>Movie</h2>
+    <hr />
+    @if (movie is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <dl class="row">
+            <dt class="col-sm-2">Title</dt>
+            <dd class="col-sm-10">@movie.Title</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@movie.Description</dd>
+            <dt class="col-sm-2">Release Date</dt>
+            <dd class="col-sm-10">@movie.RelaseDate.ToString("yyyy-MM-dd")</dd>
+            <dt class="col-sm-2">Rate</dt>
+            <dd class="col-sm-10">@movie.Rate</dd>
+            <dt class="col-sm-2">Genres</dt>
+            <dd class="col-sm-10">
+                @if (string.IsNullOrWhiteSpace(movie.Genres))
+                {
+                    <em>No genres available</em>
+                }
+                else
+                {
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach (var genre in GetGenresList(movie.Genres))
+                        {
+                            <span class="badge bg-primary">@genre</span>
+                        }
+                    </div>
+                    <small class="text-muted">Raw value: @movie.Genres</small>
+                }
+            </dd>
+            <dt class="col-sm-2">Image</dt>
+            <dd class="col-sm-10">
+                @if (!string.IsNullOrEmpty(movie.ImageUrl))
+                {
+                    <img src="@movie.ImageUrl" alt="Movie Image" class="img-fluid" />
+                }
+                else
+                {
+                    <p><em>No image available</em></p>
+                }
+            </dd>
+        </dl>
+        <div>
+            <a href="@($"/movies/edit?id={movie.Id}")">Edit</a> |
+            <a href="/movies">Back to List</a>
+        </div>
+        <EditForm Model="@this" OnValidSubmit="AddRateAsync" FormName="ratingForm">
+            <div class="form-group mt-3">
+                <label for="newRate" class="form-label">Rate:</label>
+                <InputNumber id="newRate" @bind-Value="newRate" class="form-control" min="1" max="10" step="0.1" />
+            </div>
+            <div class="mt-2">
+                <button type="submit" class="btn btn-primary">Add Rate</button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Movie? movie;
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+    private float newRate { get; set; } = 5f;
+    private IBrowserFile? uploadedFile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        movie = await context.Movie.FirstOrDefaultAsync(m => m.Id == Id);
+        if (movie is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task AddRateAsync()
+    {
+        if (newRate < 1 || newRate > 10)
+            return;
+        using var context = DbFactory.CreateDbContext();
+        var movieToUpdate = await context.Movie.FirstOrDefaultAsync(m => m.Id == Id);
+        if (movieToUpdate != null)
+        {
+            movieToUpdate.Rate = (movieToUpdate.Rate + newRate) / 2f;
+            await context.SaveChangesAsync();
+            movie = movieToUpdate;
+        }
+        StateHasChanged();
+    }
+
+    private List<string> GetGenresList(string genres)
+    {
+        if (string.IsNullOrWhiteSpace(genres))
+            return new List<string>();
+
+        // Split by comma with or without space and filter out empty entries
+        return genres
+            .Split(',')
+            .Select(g => g.Trim())
+            .Where(g => !string.IsNullOrWhiteSpace(g))
+            .ToList();
+    }
+}

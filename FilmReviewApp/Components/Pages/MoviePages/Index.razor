@@ -1,0 +1,39 @@
+﻿@page "/movies"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorApp1.Components
+@using BlazorApp1.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<BlazorApp1.Data.ApplicationDbContext> DbFactory
+<PageTitle>Index</PageTitle>
+<h1>Index</h1>
+<p>
+    <a href="movies/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="@movies" Pagination="@pagination">
+    <PropertyColumn Property="movie => movie.Title" Title="Title" Sortable="true" />
+    <PropertyColumn Property="movie => movie.RelaseDate" Title="Release Date" Format="dd/MM/yyyy" Sortable="true" />
+    <PropertyColumn Property="movie => movie.Rate" Title="Rating" Sortable="true" />
+    <TemplateColumn Context="movie">
+        <a href="@($"movies/edit?id={movie.Id}")">Edit</a> |
+        <a href="@($"movies/details?id={movie.Id}")">Details</a> |
+        <a href="@($"movies/delete?id={movie.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+<Paginator State="@pagination" />
+
+@code {
+    private ApplicationDbContext context = default!;
+    private IQueryable<Movie> movies = default!;
+    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+        movies = context.Movie.AsQueryable();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

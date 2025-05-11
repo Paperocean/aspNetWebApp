@@ -1,0 +1,175 @@
+﻿@page "/movies/edit"
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp1.Components
+@inject IDbContextFactory<BlazorApp1.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+<h2>Movie</h2>
+<hr />
+@if (Movie is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Movie" OnValidSubmit="UpdateMovie" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert" />
+                <input type="hidden" name="Movie.Id" value="@Movie.Id" />
+
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title:</label>
+                    <InputText id="title" @bind-Value="Movie.Title" class="form-control" />
+                    <ValidationMessage For="() => Movie.Title" class="text-danger" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="Movie.Description" class="form-control" />
+                    <ValidationMessage For="() => Movie.Description" class="text-danger" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="relasedate" class="form-label">Release Date:</label>
+                    <InputDate id="relasedate" @bind-Value="Movie.RelaseDate" class="form-control" />
+                    <ValidationMessage For="() => Movie.RelaseDate" class="text-danger" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="rate" class="form-label">Rate:</label>
+                    <InputNumber id="rate" @bind-Value="Movie.Rate" class="form-control" />
+                    <ValidationMessage For="() => Movie.Rate" class="text-danger" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Genres:</label>
+                    <div class="border p-2 rounded">
+                        @foreach (var item in GenreItems)
+                        {
+                            var inputId = $"genre-{item.Name}";
+                            <div class="form-check">
+                                <InputCheckbox @bind-Value="item.Selected"
+                                               class="form-check-input"
+                                               id="@inputId"
+                                               @onchange="OnGenreChanged" />
+                                <label class="form-check-label" for="@inputId">@item.Name</label>
+                            </div>
+                        }
+
+                    </div>
+                    <small class="form-text text-muted">Select one or more genres</small>
+                    <div class="mt-2">
+                        <small class="text-info">Selected genres: @string.Join(", ", GenreItems.Where(g => g.Selected).Select(g => g.Name))</small>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="imageurl" class="form-label">Image URL:</label>
+                    <InputText id="imageurl" @bind-Value="Movie.ImageUrl" class="form-control" />
+                    <ValidationMessage For="() => Movie.ImageUrl" class="text-danger" />
+                    @if (!string.IsNullOrEmpty(Movie.ImageUrl))
+                    {
+                        <p>Current Image:</p>
+                        <img src="@Movie.ImageUrl" alt="Current Movie Image" class="img-fluid mb-2" />
+                    }
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/movies">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Movie? Movie { get; set; }
+
+    private List<GenreItem> GenreItems { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Movie ??= await context.Movie.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Movie is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+            return;
+        }
+
+        var selected = new HashSet<string>(
+            (Movie.Genres ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        );
+
+        var allGenres = new[]
+        {
+            "Action", "Adventure", "Animation", "Biography", "Comedy",
+            "Crime", "Documentary", "Drama", "Family", "Fantasy",
+            "History", "Horror", "Music", "Mystery", "Romance",
+            "Sci-Fi", "Sport", "Thriller", "War", "Western"
+        };
+
+        GenreItems = allGenres
+            .Select(name => new GenreItem { Name = name, Selected = selected.Contains(name) })
+            .ToList();
+    }
+
+    private async Task UpdateMovie()
+    {
+        Movie.Genres = string.Join(", ", GenreItems.Where(g => g.Selected).Select(g => g.Name));
+
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Movie!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!MovieExists(Movie!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/movies");
+    }
+
+    private bool MovieExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Movie.Any(e => e.Id == id);
+    }
+
+    public class GenreItem
+    {
+        public string Name { get; set; } = string.Empty;
+        public bool Selected { get; set; }
+    }
+
+    private void OnGenreChanged(ChangeEventArgs e)
+    {
+        Movie.Genres = string.Join(", ", GenreItems.Where(g => g.Selected).Select(g => g.Name));
+        StateHasChanged(); // odśwież widok
+    }
+
+}
