@@ -64,7 +64,11 @@ W pliku `appsetting.json` należy zmienić domyślny Connection String (`Default
 
 Przykład wygenerowanego Connection String:
 ```
-Server=tcp:blazorapp1dbserver2.database.windows.net,1433;Initial Catalog=BlazorApp1_db;User Id={userID};Password={passwd}
+{
+  "ConnectionStrings": {
+      "DefaultConnection": "Data Source=blazorapp1dbserver2.database.windows.net;Initial Catalog=BlazorApp1_db;Persist Security Info=True;User ID={userID};Password={passwd};Trust Server Certificate=True",
+    },
+}
 ```
 
 > **Ważne:** W powyższym stringu należy zastąpić `{userID}` oraz `{passwd}` rzeczywistymi danymi uwierzytelniającymi do bazy danych.
@@ -73,14 +77,10 @@ Server=tcp:blazorapp1dbserver2.database.windows.net,1433;Initial Catalog=BlazorA
 
 Podczas konfiguracji publikacji aplikacji należy włączyć opcję migracji dla platformy Entity Framework. Zapewni to automatyczne zastosowanie migracji bazy danych podczas wdrażania aplikacji.
 
-### Pełny przykład Connection String
+### Pełny przykład
 
 ```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=tcp:blazorapp1dbserver2.database.windows.net,1433;Initial Catalog=BlazorApp1_db;User Id=rzeczywisty_użytkownik;Password=rzeczywiste_hasło"
-  }
-}
+Server=tcp:blazorapp1dbserver2.database.windows.net,1433;Initial Catalog=BlazorApp1_db;User Id=rzeczywisty_użytkownik;Password=rzeczywiste_hasło"
 ```
 
 ## Podsumowanie
