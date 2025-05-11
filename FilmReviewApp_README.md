@@ -99,9 +99,9 @@ Aby poprawnie skonfigurować połączenie z bazą danych Azure SQL Database dla 
 
 ### 1. Zmiana Connection String
 
-W pliku `appsetting.json` należy zmienić domyślny Connection String (`DefaultConnection`) na string wygenerowany po połączeniu z Azure SQL Database.
+W pliku `appsetting.json` należy zmienić domyślny Connection String (`DefaultConnection`) na string wygenerowany po połączeniu z Baza Danych SQL server.
 
-Przykład wygenerowanego Connection String:
+Przykład Connection String:
 ```
 {
   "ConnectionStrings": {
@@ -114,13 +114,15 @@ Przykład wygenerowanego Connection String:
 
 ### 2. Konfiguracja Entity Framework przy publikacji
 
-Podczas konfiguracji publikacji aplikacji należy włączyć opcję migracji dla platformy Entity Framework. Zapewni to automatyczne zastosowanie migracji bazy danych podczas wdrażania aplikacji.
+Podczas konfiguracji publikacji aplikacji należy włączyć opcję migracji dla platformy Entity Framework. Zapewni to automatyczne zastosowanie migracji bazy danych podczas wdrażania aplikacji. Należy tam umieścić string wygenerowany po połączeniu z Azure.
 
-### Pełny przykład
+Przykład Azure String:
 
-```json
-Server=tcp:blazorapp1dbserver2.database.windows.net,1433;Initial Catalog=BlazorApp1_db;User Id=rzeczywisty_użytkownik;Password=rzeczywiste_hasło"
 ```
+Server=tcp:blazorapp1dbserver2.database.windows.net,1433;Initial Catalog=BlazorApp1_db;User Id={userID};Password={passwd}"
+```
+
+> **Ważne:** W powyższym stringu należy zastąpić `{userID}` oraz `{passwd}` rzeczywistymi danymi uwierzytelniającymi do bazy danych.
 
 ## Podsumowanie
 
