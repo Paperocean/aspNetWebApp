@@ -43,5 +43,3 @@ FilmReviewApp/
 - Dane są generowane w metodzie `OnInitializedAsync()`.
 - Filtrowanie działa zarówno po temperaturze, jak i po tekście.
 - Liczba ciepłych dni (>15°C) jest obliczana dynamicznie.
-
-```
