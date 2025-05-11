@@ -24,16 +24,7 @@ builder.Services.AddAuthentication(options =>
     .AddIdentityCookies();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-//var connectionString = "Server=tcp:blazorapp1dbserver2.database.windows.net,1433;Initial Catalog=BlazorApp1_db;Persist Security Info=False;User ID=micwro2505;Password=Michalwrob127!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-//var connectionString = "Server=tcp:blazorapp1dbserver2.database.windows.net,1433;" +
-//                      "Initial Catalog=BlazorApp1_db;" +
-//                      "Persist Security Info=False;" +
-//                      "User ID=micwro2505;" +
-//                      "Password=Michalwrob127!;" +
-//                      "MultipleActiveResultSets=False;" +
-//                      "Encrypt=True;" +
-//                      "TrustServerCertificate=False;" +
-//                      "Connection Timeout=30;";
+
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
