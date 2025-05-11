@@ -126,6 +126,6 @@ Server=tcp:blazorapp1dbserver2.database.windows.net,1433;Initial Catalog=BlazorA
 
 ## Podsumowanie
 
-1. Zmień Connection String w `appsetting.json` na wygenerowany przez Azure
+1. Zmień Connection String w `appsetting.json` na wygenerowany przez Baza Danych SQL
 2. Uzupełnij dane uwierzytelniające (User Id i Password)
-3. Włącz migracje Entity Framework w ustawieniach publikacji
+3. Włącz migracje Entity Framework w ustawieniach publikacji i zmień na wygnerowany String Azure
